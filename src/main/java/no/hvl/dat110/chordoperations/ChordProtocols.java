@@ -168,7 +168,7 @@ public class ChordProtocols {
 			BigInteger addressSize = Hash.addressSize();
 			
 			// get the number of bits from the Hash class. Number of bits = size of the finger table
-			double exponent = Math.log(addressSize.intValue()) / Math.log(2);
+			//double exponent = Math.log(addressSize.intValue()) / Math.log(2);
 			int bitsize = Hash.bitSize();
 			
 			// iterate over the number of bits
