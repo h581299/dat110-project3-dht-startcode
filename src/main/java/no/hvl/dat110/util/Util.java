@@ -48,14 +48,14 @@ public class Util {
         BigInteger addressSize = Hash.addressSize();
         
         if (lower.compareTo(upper) > 0) {
-            if ((id.compareTo(new BigInteger("0")) > 0 || id.compareTo(new BigInteger("0")) == 0) && ((id.compareTo(upper) < 0 || id.compareTo(upper) == 0))) {
+            if (id.compareTo(new BigInteger("0")) >= 0 && id.compareTo(upper) <= 0 ) {
                 id = id.add(addressSize);
             }
         }
         
         upper = upper.add(addressSize);
         
-        if ((id.compareTo(lower) > 0 || id.compareTo(lower) == 0) && (id.compareTo(upper) < 0 || id.compareTo(upper) == 0)) {
+        if (id.compareTo(lower) >= 0 && id.compareTo(upper) <= 0 ) {
             return true;
         }
         
