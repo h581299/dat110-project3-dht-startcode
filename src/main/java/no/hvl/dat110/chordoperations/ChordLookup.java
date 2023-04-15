@@ -33,31 +33,27 @@ public class ChordLookup {
 	
 	public NodeInterface findSuccessor(BigInteger key) throws RemoteException {
 		// ask this node to find the successor of key
-	    //NodeInterface successor = node.findSuccessor(key);
-
-        // get the successor of the node
-        //successor = successor.getSuccessor();
-	    NodeInterface successor = node.getSuccessor();
 	    
-	    if (successor != null) {
-    	    // check that key is a member of the set {nodeid+1,...,succID} i.e. (nodeid+1 <= key <= succID) using the checkInterval
-    	    boolean checkInterval = Util.checkInterval(node.getNodeID().add(new BigInteger("1")), key, successor.getNodeID());
-    	    
-    		// if logic returns true, then return the successor
-    	    if (checkInterval) {
-    	        return successor;
-    	    } else {
-    	        // if logic returns false; call findHighestPredecessor(key)
-    	        NodeInterface highestPred = findHighestPredecessor(key);
-    	        
-    	        // do highest_pred.findSuccessor(key) - This is a recursive call until logic returns true
-    	        successor = highestPred.findSuccessor(key);
-    	    }
-    				
-    		return successor;
+		// get the successor of the node	
+		NodeInterface succ = node.getSuccessor();
+		// if logic returns true, then return the successor
+	    if (node.getNodeID().equals(succ.getNodeID())) {
+	        return succ;
 	    }
+	    // check that key is a member of the set {nodeid+1,...,succID} i.e. (nodeid+1 <= key <= succID) using the checkInterval
+	    if (Util.checkInterval(node.getNodeID().add(BigInteger.ONE), key, succ.getNodeID())) {
+	        return succ;
+	    } else {
+	    	// if logic returns false; call findHighestPredecessor(key)
+	    	// do highest_pred.findSuccessor(key) - This is a recursive call until logic returns true
+	        NodeInterface highest_pred = findHighestPredecessor(key);
 
-	    return null;
+	        if (highest_pred.getNodeID().equals(node.getNodeID())) {
+	            return succ;
+	        } else {
+	            return highest_pred.findSuccessor(key);
+	        }
+	    }
 	}
 	
 	/**
@@ -71,22 +67,22 @@ public class ChordLookup {
 		// collect the entries in the finger table for this node
 	    List<NodeInterface> fingertable = node.getFingerTable();
 		
-		// starting from the last entry, iterate over the finger table
-        for (int i = fingertable.size(); i > 0; i--) {
-            // for each finger, obtain a stub from the registry
-            //BigInteger fingerid = fingertable.get(i).getNodeID();
-            NodeInterface fingerStub = Util.getProcessStub(fingertable.get(i).getNodeName() , fingertable.get(i).getPort());
-            
-            // check that finger is a member of the set {nodeID+1,...,ID-1} i.e. (nodeID+1 <= finger <= key-1) using the ComputeLogic
-            boolean checkInterval = Util.checkInterval(node.getNodeID().add(new BigInteger("1")), fingerStub.getNodeID(), fingerStub.getNodeID().subtract(new BigInteger("1")));
+	    // starting from the last entry, iterate over the finger table
+        for (int i = fingertable.size() - 1; i >= 0; i--) {
+        	// for each finger, obtain a stub from the registry
+            NodeInterface finger = fingertable.get(i);
 
+            // check that finger is a member of the set {nodeID+1,...,ID-1} i.e. (nodeID+1 <= finger <= key-1) using the ComputeLogic
+            //boolean checkInterval = Util.checkInterval(node.getNodeID().add(new BigInteger("1")), fingerStub.getNodeID(), fingerStub.getNodeID().subtract(new BigInteger("1")));
+            boolean checkInterval = Util.checkInterval(node.getNodeID().add(BigInteger.ONE), finger.getNodeID(), ID.subtract(BigInteger.ONE));
+        
             // if logic returns true, then return the finger (means finger is the closest to key)
             if (checkInterval) {
-                return fingertable.get(i);
+            	return finger;      	
             }
         }
-	    		
-		return (NodeInterface) node;			
+        return (NodeInterface) node; 
+	
 	}
 	
 	public void copyKeysFromSuccessor(NodeInterface succ) {
