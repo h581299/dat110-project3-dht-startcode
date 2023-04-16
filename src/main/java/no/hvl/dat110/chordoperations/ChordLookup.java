@@ -33,21 +33,19 @@ public class ChordLookup {
 	
 	public NodeInterface findSuccessor(BigInteger key) throws RemoteException {
 		// ask this node to find the successor of key
-	    
+
 		// get the successor of the node	
 		NodeInterface succ = node.getSuccessor();
-		// if logic returns true, then return the successor
-	    if (node.getNodeID().equals(succ.getNodeID())) {
-	        return succ;
-	    }
+	    
 	    // check that key is a member of the set {nodeid+1,...,succID} i.e. (nodeid+1 <= key <= succID) using the checkInterval
 	    if (Util.checkInterval(node.getNodeID().add(BigInteger.ONE), key, succ.getNodeID())) {
+	    	// if logic returns true, then return the successor
 	        return succ;
 	    } else {
 	    	// if logic returns false; call findHighestPredecessor(key)
+	    	NodeInterface highest_pred = findHighestPredecessor(key);
+	    	
 	    	// do highest_pred.findSuccessor(key) - This is a recursive call until logic returns true
-	        NodeInterface highest_pred = findHighestPredecessor(key);
-
 	        if (highest_pred.getNodeID().equals(node.getNodeID())) {
 	            return succ;
 	        } else {
@@ -73,7 +71,6 @@ public class ChordLookup {
             NodeInterface finger = fingertable.get(i);
 
             // check that finger is a member of the set {nodeID+1,...,ID-1} i.e. (nodeID+1 <= finger <= key-1) using the ComputeLogic
-            //boolean checkInterval = Util.checkInterval(node.getNodeID().add(new BigInteger("1")), fingerStub.getNodeID(), fingerStub.getNodeID().subtract(new BigInteger("1")));
             boolean checkInterval = Util.checkInterval(node.getNodeID().add(BigInteger.ONE), finger.getNodeID(), ID.subtract(BigInteger.ONE));
         
             // if logic returns true, then return the finger (means finger is the closest to key)
@@ -81,8 +78,7 @@ public class ChordLookup {
             	return finger;      	
             }
         }
-        return (NodeInterface) node; 
-	
+        return (NodeInterface) node; 	
 	}
 	
 	public void copyKeysFromSuccessor(NodeInterface succ) {
