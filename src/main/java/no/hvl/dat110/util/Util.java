@@ -44,22 +44,14 @@ public class Util {
 		// if id = 9, then (6 < 9 <= 2) = true
 		
 		// Task: given an identifier, id: check whether pred < id <= node
-	    
-        BigInteger addressSize = Hash.addressSize();
         
-        if (lower.compareTo(upper) > 0) {
-            if (id.compareTo(new BigInteger("0")) >= 0 && id.compareTo(upper) <= 0 ) {
-                id = id.add(addressSize);
-            }
-        }
-        
-        upper = upper.add(addressSize);
-        
-        if (id.compareTo(lower) >= 0 && id.compareTo(upper) <= 0 ) {
-            return true;
-        }
-        
-        return false;
+        if (lower.compareTo(upper) < 0) {
+	        return id.compareTo(lower) >= 0 && id.compareTo(upper) <= 0;
+	    } else if (lower.compareTo(upper) > 0) {
+	        return id.compareTo(lower) >= 0 || id.compareTo(upper) <= 0;
+	    } else {
+	        return id.equals(lower);
+	    }
 
 	}
 	
