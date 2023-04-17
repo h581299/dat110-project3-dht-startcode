@@ -33,12 +33,13 @@ public class ChordLookup {
 	
 	public NodeInterface findSuccessor(BigInteger key) throws RemoteException {
 		// ask this node to find the successor of key
+	    NodeInterface succ = node.getSuccessor();
 
 		// get the successor of the node	
-		NodeInterface succ = node.getSuccessor();
+		NodeInterface stub = Util.getProcessStub(succ.getNodeName(), succ.getPort());
 	    
 	    // check that key is a member of the set {nodeid+1,...,succID} i.e. (nodeid+1 <= key <= succID) using the checkInterval
-	    if (Util.checkInterval(node.getNodeID().add(BigInteger.ONE), key, succ.getNodeID())) {
+	    if (Util.checkInterval(key, node.getNodeID().add(BigInteger.ONE), stub.getNodeID())) {
 	    	// if logic returns true, then return the successor
 	        return succ;
 	    } else {
@@ -69,13 +70,16 @@ public class ChordLookup {
         for (int i = fingertable.size() - 1; i >= 0; i--) {
         	// for each finger, obtain a stub from the registry
             NodeInterface finger = fingertable.get(i);
+            NodeInterface stub = Util.getProcessStub(finger.getNodeName(), finger.getPort());
 
             // check that finger is a member of the set {nodeID+1,...,ID-1} i.e. (nodeID+1 <= finger <= key-1) using the ComputeLogic
-            boolean checkInterval = Util.checkInterval(node.getNodeID().add(BigInteger.ONE), finger.getNodeID(), ID.subtract(BigInteger.ONE));
-        
-            // if logic returns true, then return the finger (means finger is the closest to key)
-            if (checkInterval) {
-            	return finger;      	
+            if (stub != null) {
+                boolean checkInterval = Util.checkInterval( finger.getNodeID(), node.getNodeID().add(BigInteger.ONE), ID.subtract(BigInteger.ONE));
+                
+                // if logic returns true, then return the finger (means finger is the closest to key)
+                if (checkInterval) {
+                    return stub;        
+                }                
             }
         }
         return (NodeInterface) node; 	
