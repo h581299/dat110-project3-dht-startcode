@@ -93,23 +93,25 @@ public class FileManager {
     	createReplicaFiles();
     	
 		// iterate over the replicas
-    	for (; counter < numReplicas; counter++) {
+    	for (int i = 0; i < replicafiles.length; i++) {
     	    // for each replica, find its successor (peer/node) by performing findSuccessor(replica)
-    	    NodeInterface successor = chordnode.findSuccessor(replicafiles[counter]);
+    	    NodeInterface successor = chordnode.findSuccessor(replicafiles[i]);
     	    
     	    // call the addKey on the successor and add the replica
-    	    successor.addKey(replicafiles[counter]);
+    	    successor.addKey(replicafiles[i]);
 
     	    // implement a logic to decide if this successor should be assigned as the primary for the file
     	    if (counter == index) {
     	        // call the saveFileContent() on the successor and set isPrimary=true if logic above is true otherwise set isPrimary=false
-    	        successor.saveFileContent(filename, hash, bytesOfFile, true);
+    	        successor.saveFileContent(filename, replicafiles[i], bytesOfFile, true);
     	    } else {
-                successor.saveFileContent(filename, hash, bytesOfFile, false);
+                successor.saveFileContent(filename, replicafiles[i], bytesOfFile, false);
     	    }
+    	    
+    	    // increment counter
+    	    counter++;
     	}
-    	    	
-    	// increment counter
+    	
 		return counter;
     }
 	
@@ -135,12 +137,14 @@ public class FileManager {
 		    NodeInterface s = chordnode.findSuccessor(replicafiles[i]);
 		    
 		    // get the metadata (Message) of the replica from the successor (i.e., active peer) of the file
-		    Message message = s.getFilesMetadata().get(replicafiles[i]);
+		    Message message = s.getFilesMetadata(replicafiles[i]);
 		    
 	        // save the metadata in the set activeNodesforFile.
-		    activeNodesforFile.add(message);
+		    if (message != null) {
+	            activeNodesforFile.add(message);		        
+		    }
 		}
-		
+
 		return activeNodesforFile;
 	}
 	
@@ -159,7 +163,7 @@ public class FileManager {
 	        // use the primaryServer boolean variable contained in the Message class to check if it is the primary or not
 	        if (message.isPrimaryServer()) {
 	            // return the primary when found (i.e., use Util.getProcessStub to get the stub and return it)
-	            return Util.getProcessStub(message.getNameOfFile(), message.getPort());
+	            return Util.getProcessStub(message.getNodeName(), message.getPort());
 	        }
 	    }
 		
