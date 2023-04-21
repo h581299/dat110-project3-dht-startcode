@@ -176,7 +176,8 @@ public class ChordProtocols {
 			    // compute: k = succ(n + 2^(i)) mod 2^mbit
 			    //int compute = ((addressSize.intValue() + (1 << i)) % (1 << bitsize)) + 1;
 				//BigInteger k = BigInteger.valueOf(compute);
-			    BigInteger k = chordnode.findSuccessor(chordnode.getNodeID().add(BigInteger.TWO.pow(i))).getNodeID().mod(addressSize);
+			    //BigInteger k = chordnode.findSuccessor(chordnode.getNodeID().add(BigInteger.TWO.pow(i))).getNodeID().mod(addressSize);
+			    BigInteger k = chordnode.getNodeID().add(BigInteger.TWO.pow(i)).mod(addressSize);
 			    
 	            // then: use chordnode to find the successor of k. (i.e., succnode = chordnode.findSuccessor(k))
 		        NodeInterface succnode = chordnode.findSuccessor(k);
